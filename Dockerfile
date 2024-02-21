@@ -30,28 +30,18 @@ COPY ./back_pis/ /app/backend/
 RUN npm install
 RUN npm install axios
 
-# Exponer el puerto necesario para el servidor del backend
-EXPOSE 3010
+# Etapa 3: Creación del contenedor final
+FROM nginx:alpine
 
-# Etapa 3: Combinar frontend y backend en un contenedor final
-FROM node:20.5.0
+# Copiar los archivos del frontend construido
+COPY --from=frontend_builder /app/frontend/build /usr/share/nginx/html
 
-# Crear directorio para la aplicación
-WORKDIR /app
+# Copiar la configuración de NGINX para el proxy
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copiar los archivos del frontend y el backend
-COPY --from=frontend_builder /app/frontend/build /app/frontend/build
-COPY --from=backend_builder /app/backend /app/backend
+# Exponer el puerto 80 para NGINX
+EXPOSE 80
 
-# Copiar el archivo de inicio del backend
-COPY ./start.sh /app/start.sh
+# CMD predeterminado de nginx
+CMD ["nginx", "-g", "daemon off;"]
 
-# Dar permisos de ejecución al archivo de inicio
-RUN chmod +x /app/start.sh
-
-# Exponer los puertos necesarios para el frontend y el backend
-EXPOSE 3000
-EXPOSE 3010
-
-# Ejecutar el archivo de inicio al iniciar el contenedor
-CMD ["/app/start.sh"]
