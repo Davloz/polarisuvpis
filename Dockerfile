@@ -24,3 +24,5 @@ EXPOSE 3000
 # Iniciar tanto el frontend como el backend al iniciar el contenedor
 CMD ["sh", "-c", "cd /app/frontend && npm start & cd /app/backend && npm start"]
 
+# Establecer el puerto de entrada y salida
+ENTRYPOINT ["docker", "run", "-p", "100:3000"]
